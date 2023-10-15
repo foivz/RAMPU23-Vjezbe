@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Memento</string>
-    <string name="completed_fragment">Completed Fragment</string>
-    <string name="pending_fragment">Pending Fragment</string>
-    <string name="news_fragment">News Fragment</string>
+    <string name="tasks_completed">Completed Fragment</string>
+    <string name="tasks_pending">Pending Fragment</string>
+    <string name="news">News Fragment</string>
 </resources>

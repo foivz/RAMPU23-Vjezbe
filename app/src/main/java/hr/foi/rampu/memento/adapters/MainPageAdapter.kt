@@ -12,7 +12,7 @@ import hr.foi.rampu.memento.fragments.PendingFragment
 class MainPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
 
-    val titleList = listOf(R.string.pending_fragment, R.string.completed_fragment, R.string.news_fragment)
+    val titleList = listOf(R.string.tasks_pending, R.string.tasks_completed, R.string.news)
     val iconList = listOf(
         R.drawable.baseline_assignment_late_24,
         R.drawable.baseline_assignment_turned_in_24,
