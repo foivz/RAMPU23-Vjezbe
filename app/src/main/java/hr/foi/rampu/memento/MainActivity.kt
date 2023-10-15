@@ -19,38 +19,49 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        connectViewPagerWithTabLayout()
+    }
+
+    private fun connectViewPagerWithTabLayout() {
         tabLayout = findViewById(R.id.tabs)
         viewPager2 = findViewById(R.id.viewpager)
 
-        val mainPagerAdapter = MainPagerAdapter(supportFragmentManager, lifecycle)
+        val mainPageAdapter = createMainPageAdapter()
+        viewPager2.adapter = mainPageAdapter
 
-        mainPagerAdapter.addFragment(
+        TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
+            tab.setText(mainPageAdapter.fragmentItems[position].titleRes)
+            tab.setIcon(mainPageAdapter.fragmentItems[position].iconRes)
+        }.attach()
+    }
+
+    private fun createMainPageAdapter(): MainPagerAdapter {
+        val mainPagerAdapter = MainPagerAdapter(supportFragmentManager, lifecycle)
+        fillAdapterWithFragments(mainPagerAdapter)
+        return mainPagerAdapter
+    }
+
+    private fun fillAdapterWithFragments(adapter: MainPagerAdapter) {
+        adapter.addFragment(
             MainPagerAdapter.FragmentItem(
                 R.string.tasks_pending,
                 R.drawable.baseline_assignment_late_24,
                 PendingFragment::class
             )
         )
-        mainPagerAdapter.addFragment(
+        adapter.addFragment(
             MainPagerAdapter.FragmentItem(
                 R.string.tasks_completed,
                 R.drawable.baseline_assignment_turned_in_24,
                 CompletedFragment::class
             )
         )
-        mainPagerAdapter.addFragment(
+        adapter.addFragment(
             MainPagerAdapter.FragmentItem(
                 R.string.news,
                 R.drawable.baseline_wysiwyg_24,
                 NewsFragment::class
             )
         )
-
-        viewPager2.adapter = mainPagerAdapter
-
-        TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
-            tab.setText(mainPagerAdapter.fragmentItems[position].titleRes)
-            tab.setIcon(mainPagerAdapter.fragmentItems[position].iconRes)
-        }.attach()
     }
 }
