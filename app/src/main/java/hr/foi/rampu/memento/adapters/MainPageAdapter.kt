@@ -8,24 +8,28 @@ import hr.foi.rampu.memento.R
 import hr.foi.rampu.memento.fragments.CompletedFragment
 import hr.foi.rampu.memento.fragments.NewsFragment
 import hr.foi.rampu.memento.fragments.PendingFragment
+import kotlin.reflect.KClass
 
 class MainPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
 
-    val titleList = listOf(R.string.tasks_pending, R.string.tasks_completed, R.string.news)
-    val iconList = listOf(
-        R.drawable.baseline_assignment_late_24,
-        R.drawable.baseline_assignment_turned_in_24,
-        R.drawable.baseline_wysiwyg_24
+    data class FragmentItem(val titleRes: Int, val iconRes: Int, val fragmentClass: KClass<*>)
+
+    val fragmentItems = listOf(
+        FragmentItem(
+            R.string.tasks_pending, R.drawable.baseline_assignment_late_24, PendingFragment::class
+        ),
+        FragmentItem(
+            R.string.tasks_completed, R.drawable.baseline_assignment_turned_in_24, CompletedFragment::class
+        ),
+        FragmentItem(
+            R.string.news, R.drawable.baseline_wysiwyg_24, NewsFragment::class
+        )
     )
 
-    override fun getItemCount(): Int = 3
+    override fun getItemCount(): Int = fragmentItems.size
 
     override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> PendingFragment()
-            1 -> CompletedFragment()
-            else -> NewsFragment()
-        }
+        return fragmentItems[position].fragmentClass.java.newInstance() as Fragment
     }
 }
