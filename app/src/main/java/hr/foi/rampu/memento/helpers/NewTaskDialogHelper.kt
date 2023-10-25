@@ -1,5 +1,7 @@
 package hr.foi.rampu.memento.helpers
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -33,12 +35,37 @@ class NewTaskDialogHelper(private val view: View) {
     }
 
     fun activateDateTimeListeners() {
-        dateSelection.setOnClickListener {
-
+        dateSelection.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                DatePickerDialog(
+                    view.context,
+                    { _, year, monthOfYear, dayOfMonth ->
+                        selectedDateTime.set(year, monthOfYear, dayOfMonth)
+                        dateSelection.setText(sdfDate.format(selectedDateTime.time).toString())
+                    },
+                    selectedDateTime.get(Calendar.YEAR),
+                    selectedDateTime.get(Calendar.MONTH),
+                    selectedDateTime.get(Calendar.DAY_OF_MONTH),
+                ).show()
+                view.clearFocus()
+            }
         }
 
-        timeSelection.setOnClickListener {
-
+        timeSelection.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                TimePickerDialog(
+                    view.context,
+                    { _, hourOfDay, minute ->
+                        selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        selectedDateTime.set(Calendar.MINUTE, minute)
+                        timeSelection.setText(sdfTime.format(selectedDateTime.time).toString())
+                    },
+                    selectedDateTime.get(Calendar.HOUR_OF_DAY),
+                    selectedDateTime.get(Calendar.MINUTE),
+                    true
+                ).show()
+                view.clearFocus()
+            }
         }
     }
 
