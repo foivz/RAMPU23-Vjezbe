@@ -1,6 +1,7 @@
 package hr.foi.rampu.memento.helpers
 
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import hr.foi.rampu.memento.R
@@ -22,7 +23,13 @@ class NewTaskDialogHelper(private val view: View) {
     private val timeSelection = view.findViewById<EditText>(R.id.et_new_task_dialog_time)
 
     fun populateSpinner(categories: List<TaskCategory>) {
-        TODO()
+        val spinnerAdapter = ArrayAdapter(
+            view.context,
+            android.R.layout.simple_spinner_item,
+            categories
+        )
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = spinnerAdapter
     }
 
     fun activateDateTimeListeners() {
