@@ -18,10 +18,12 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewPager2: ViewPager2
     lateinit var navDrawerLayout: DrawerLayout
     lateinit var navView: NavigationView
+    lateinit var mainPagerAdapter: MainPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initializeMainPagerAdapter()
 
         connectViewPagerWithTabLayout()
         connectNavDrawerWithViewPager()
@@ -31,37 +33,35 @@ class MainActivity : AppCompatActivity() {
         tabLayout = findViewById(R.id.tabs)
         viewPager2 = findViewById(R.id.viewpager)
 
-        val mainPageAdapter = createMainPageAdapter()
-        viewPager2.adapter = mainPageAdapter
+        viewPager2.adapter = mainPagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
-            tab.setText(mainPageAdapter.fragmentItems[position].titleRes)
-            tab.setIcon(mainPageAdapter.fragmentItems[position].iconRes)
+            tab.setText(mainPagerAdapter.fragmentItems[position].titleRes)
+            tab.setIcon(mainPagerAdapter.fragmentItems[position].iconRes)
         }.attach()
     }
 
-    private fun createMainPageAdapter(): MainPagerAdapter {
-        val mainPagerAdapter = MainPagerAdapter(supportFragmentManager, lifecycle)
-        fillAdapterWithFragments(mainPagerAdapter)
-        return mainPagerAdapter
+    private fun initializeMainPagerAdapter() {
+        mainPagerAdapter = MainPagerAdapter(supportFragmentManager, lifecycle)
+        fillAdapterWithFragments()
     }
 
-    private fun fillAdapterWithFragments(adapter: MainPagerAdapter) {
-        adapter.addFragment(
+    private fun fillAdapterWithFragments() {
+        mainPagerAdapter.addFragment(
             MainPagerAdapter.FragmentItem(
                 R.string.tasks_pending,
                 R.drawable.baseline_assignment_late_24,
                 PendingFragment::class
             )
         )
-        adapter.addFragment(
+        mainPagerAdapter.addFragment(
             MainPagerAdapter.FragmentItem(
                 R.string.tasks_completed,
                 R.drawable.baseline_assignment_turned_in_24,
                 CompletedFragment::class
             )
         )
-        adapter.addFragment(
+        mainPagerAdapter.addFragment(
             MainPagerAdapter.FragmentItem(
                 R.string.news,
                 R.drawable.baseline_wysiwyg_24,
@@ -74,6 +74,8 @@ class MainActivity : AppCompatActivity() {
         navDrawerLayout = findViewById(R.id.nav_drawer_layout)
         navView = findViewById(R.id.nav_view)
 
+        fillNavDrawerWithFragments()
+
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.title) {
                 getString(R.string.tasks_pending) -> viewPager2.setCurrentItem(0, true)
@@ -82,6 +84,27 @@ class MainActivity : AppCompatActivity() {
             }
             navDrawerLayout.closeDrawers()
             return@setNavigationItemSelectedListener true
+        }
+
+        viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                navView.menu.getItem(position).isChecked = true
+            }
+        })
+    }
+
+    private fun fillNavDrawerWithFragments() {
+        mainPagerAdapter.fragmentItems.withIndex().forEach { (index, fragmentItem) ->
+            navView.menu
+                .add(fragmentItem.titleRes)
+                .setIcon(fragmentItem.iconRes)
+                .setCheckable(true)
+                .setChecked((index == 0))
+                .setOnMenuItemClickListener {
+                    viewPager2.setCurrentItem(index, true)
+                    navDrawerLayout.closeDrawers()
+                    return@setOnMenuItemClickListener true
+                }
         }
     }
 }
