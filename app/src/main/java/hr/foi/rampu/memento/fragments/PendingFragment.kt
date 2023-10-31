@@ -42,12 +42,18 @@ class PendingFragment : Fragment() {
             .from(context)
             .inflate(R.layout.new_task_dialog, null)
 
+        val dialogHelper = NewTaskDialogHelper(newTaskDialogView)
+
         AlertDialog.Builder(context)
             .setView(newTaskDialogView)
             .setTitle(getString(R.string.create_a_new_task))
+            .setPositiveButton(getString(R.string.create_a_new_task)) { _, _ ->
+                val newTask = dialogHelper.buildTask()
+                val tasksAdapter = recyclerView.adapter as TasksAdapter
+                tasksAdapter.addTask(newTask)
+            }
             .show()
 
-        val dialogHelper = NewTaskDialogHelper(newTaskDialogView)
         dialogHelper.populateSpinner(MockDataLoader.getDemoCategories())
         dialogHelper.activateDateTimeListeners()
     }

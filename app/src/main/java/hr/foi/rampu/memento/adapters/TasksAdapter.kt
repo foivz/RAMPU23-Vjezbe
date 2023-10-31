@@ -12,7 +12,7 @@ import hr.foi.rampu.memento.entities.Task
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TasksAdapter(private val tasksList: List<Task>) :
+class TasksAdapter(private val tasksList: MutableList<Task>) :
     RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
     inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
@@ -32,6 +32,17 @@ class TasksAdapter(private val tasksList: List<Task>) :
             taskDueDate.text = sdf.format(task.dueDate)
             taskCategoryColor.setBackgroundColor(task.category.color.toColorInt())
         }
+    }
+
+    fun addTask(newTask: Task) {
+        var newIndexInList = tasksList.indexOfFirst { task ->
+            task.dueDate > newTask.dueDate
+        }
+        if (newIndexInList == -1) {
+            newIndexInList = tasksList.size
+        }
+        tasksList.add(newIndexInList, newTask)
+        notifyItemInserted(newIndexInList)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
