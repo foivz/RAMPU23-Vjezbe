@@ -2,7 +2,9 @@ package hr.foi.rampu.memento
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import hr.foi.rampu.memento.adapters.MainPagerAdapter
@@ -14,12 +16,15 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var tabLayout: TabLayout
     lateinit var viewPager2: ViewPager2
+    lateinit var navDrawerLayout: DrawerLayout
+    lateinit var navView: NavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         connectViewPagerWithTabLayout()
+        connectNavDrawerWithViewPager()
     }
 
     private fun connectViewPagerWithTabLayout() {
@@ -63,5 +68,20 @@ class MainActivity : AppCompatActivity() {
                 NewsFragment::class
             )
         )
+    }
+
+    private fun connectNavDrawerWithViewPager() {
+        navDrawerLayout = findViewById(R.id.nav_drawer_layout)
+        navView = findViewById(R.id.nav_view)
+
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.title) {
+                getString(R.string.tasks_pending) -> viewPager2.setCurrentItem(0, true)
+                getString(R.string.tasks_completed) -> viewPager2.setCurrentItem(1, true)
+                getString(R.string.news) -> viewPager2.setCurrentItem(2, true)
+            }
+            navDrawerLayout.closeDrawers()
+            return@setNavigationItemSelectedListener true
+        }
     }
 }
