@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import hr.foi.rampu.memento.converters.DateConverter
 import java.util.Date
 
 @Entity(
@@ -16,6 +18,7 @@ import java.util.Date
         onDelete = ForeignKey.RESTRICT
     )]
 )
+@TypeConverters(DateConverter::class)
 data class Task(
     @PrimaryKey val id: Int,
     val name: String,
