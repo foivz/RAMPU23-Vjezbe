@@ -7,6 +7,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import hr.foi.rampu.memento.converters.DateConverter
+import hr.foi.rampu.memento.database.TasksDatabase
 import java.util.Date
 
 @Entity(
@@ -26,6 +27,11 @@ data class Task(
     @ColumnInfo(name = "category_id") val categoryId: Int,
     val completed: Boolean
 ) {
-    @Ignore
-    lateinit var category: TaskCategory
+    @delegate:Ignore
+    val category: TaskCategory by lazy {
+        TasksDatabase
+            .getInstance()
+            .getTaskCategoriesDao()
+            .getAllCategoriesById(categoryId)
+    }
 }
