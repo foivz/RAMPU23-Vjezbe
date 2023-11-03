@@ -6,19 +6,17 @@ import java.util.Date
 
 object MockDataLoader {
     fun getDemoData(): MutableList<Task> {
-        val categories = getDemoCategories()
-
         return mutableListOf(
-            Task("Submit seminar paper", Date(), categories[0], false),
-            Task("Prepare for exercises", Date(), categories[1], false),
-            Task("Rally a project team", Date(), categories[0], false),
-            Task("Connect to server (SSH)", Date(), categories[2], false)
+            Task(1, "Submit seminar paper", Date(), 1, false),
+            Task(2, "Prepare for exercises", Date(), 2, false),
+            Task(3, "Rally a project team", Date(), 1, false),
+            Task(4, "Connect to server (SSH)", Date(), 3, false)
         )
     }
 
     fun getDemoCategories(): List<TaskCategory> = listOf(
-        TaskCategory(0, "RAMPU", "#000080"),
-        TaskCategory(0, "RPP", "#FF0000"),
-        TaskCategory(0, "RWA", "#CCCCCC"),
+        TaskCategory(1, "RAMPU", "#000080"),
+        TaskCategory(2, "RPP", "#FF0000"),
+        TaskCategory(3, "RWA", "#CCCCCC"),
     )
 }
