@@ -8,9 +8,11 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import hr.foi.rampu.memento.adapters.MainPagerAdapter
+import hr.foi.rampu.memento.database.TasksDatabase
 import hr.foi.rampu.memento.fragments.CompletedFragment
 import hr.foi.rampu.memento.fragments.NewsFragment
 import hr.foi.rampu.memento.fragments.PendingFragment
+import hr.foi.rampu.memento.helpers.MockDataLoader
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,6 +26,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initializeMainPagerAdapter()
+
+        TasksDatabase.buildInstance(applicationContext)
+        MockDataLoader.loadMockData()
 
         connectViewPagerWithTabLayout()
         connectNavDrawerWithViewPager()
