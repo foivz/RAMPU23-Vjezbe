@@ -14,7 +14,10 @@ import hr.foi.rampu.memento.entities.Task
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TasksAdapter(private val tasksList: MutableList<Task>) :
+class TasksAdapter(
+    private val tasksList: MutableList<Task>,
+    private val onTaskCompleted: ((taskId: Int) -> Unit)? = null
+) :
     RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
     inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
@@ -29,24 +32,30 @@ class TasksAdapter(private val tasksList: MutableList<Task>) :
             taskCategoryColor = view.findViewById(R.id.sv_task_category_color)
 
             view.setOnLongClickListener {
+                val currentTask = tasksList[adapterPosition]
 
-                AlertDialog.Builder(view.context)
+                val alertDialogBuilder = AlertDialog.Builder(view.context)
                     .setTitle(taskName.text)
                     .setNeutralButton("Delete task") { _, _ ->
-                        val deletedTask = tasksList[adapterPosition]
+                        val deletedTask = currentTask
                         TasksDatabase.getInstance().getTasksDao().removeTask(deletedTask)
-                        removeTaskFromList()
-                    }
-                    .setPositiveButton("Mark as completed") { _, _ ->
-                        val completedTask = tasksList[adapterPosition]
-                        completedTask.completed = true
-                        TasksDatabase.getInstance().getTasksDao().insertTask(completedTask)
                         removeTaskFromList()
                     }
                     .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.cancel()
                     }
-                    .show()
+
+                if (!currentTask.completed) {
+                    alertDialogBuilder.setPositiveButton("Mark as completed") { _, _ ->
+                        currentTask.completed = true
+                        TasksDatabase.getInstance().getTasksDao().insertTask(currentTask)
+                        removeTaskFromList()
+                        onTaskCompleted?.invoke(currentTask.id)
+                    }
+                }
+
+                alertDialogBuilder.show()
+
                 return@setOnLongClickListener true
             }
         }

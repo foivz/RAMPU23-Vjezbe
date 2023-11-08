@@ -13,6 +13,7 @@ import hr.foi.rampu.memento.database.TasksDatabase
 
 class CompletedFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
+    private val tasksDAO = TasksDatabase.getInstance().getTasksDao()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,8 +25,17 @@ class CompletedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view.findViewById(R.id.rv_completed_tasks)
-        val completedTasks = TasksDatabase.getInstance().getTasksDao().getAllTasks(completed = true)
+        val completedTasks = tasksDAO.getAllTasks(completed = true)
         recyclerView.adapter = TasksAdapter(completedTasks.toMutableList())
         recyclerView.layoutManager = LinearLayoutManager(view.context)
+
+        parentFragmentManager.setFragmentResultListener(
+            "task_completed",
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val addedTaskId = bundle.getInt("task_id")
+            val tasksAdapter = recyclerView.adapter as TasksAdapter
+            tasksAdapter.addTask(tasksDAO.getTask(addedTaskId))
+        }
     }
 }
