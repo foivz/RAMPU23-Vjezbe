@@ -1,17 +1,21 @@
 package hr.foi.rampu.memento.adapters
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.RecyclerView
 import hr.foi.rampu.memento.R
 import hr.foi.rampu.memento.database.TasksDatabase
 import hr.foi.rampu.memento.entities.Task
+import hr.foi.rampu.memento.services.TaskTimerService
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class TasksAdapter(
@@ -26,14 +30,38 @@ class TasksAdapter(
         private val taskDueDate: TextView
         private val taskCategoryColor: SurfaceView
 
+        private val taskTimer: ImageView = view.findViewById(R.id.iv_task_timer)
+        private var isTimerActive = false
+
+        val currentTask by lazy { tasksList[adapterPosition] }
+
         init {
             taskName = view.findViewById(R.id.tv_task_name)
             taskDueDate = view.findViewById(R.id.tv_task_due_date)
             taskCategoryColor = view.findViewById(R.id.sv_task_category_color)
 
-            view.setOnLongClickListener {
-                val currentTask = tasksList[adapterPosition]
+            view.setOnClickListener {
+                if (Date() < currentTask.dueDate) {
+                    val intent = Intent(view.context, TaskTimerService::class.java).apply {
+                        putExtra("task_id", currentTask.id)
+                    }
 
+                    isTimerActive = !isTimerActive
+
+                    if (isTimerActive) {
+                        taskTimer.visibility = View.VISIBLE
+                    } else {
+                        intent.putExtra("cancel", true)
+                        taskTimer.visibility = View.GONE
+                    }
+
+                    view.context.startForegroundService(intent)
+                } else if (taskTimer.visibility == View.VISIBLE) {
+                    taskTimer.visibility = View.GONE
+                }
+            }
+
+            view.setOnLongClickListener {
                 val alertDialogBuilder = AlertDialog.Builder(view.context)
                     .setTitle(taskName.text)
                     .setNeutralButton("Delete task") { _, _ ->
