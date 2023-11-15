@@ -1,5 +1,7 @@
 package hr.foi.rampu.memento
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
@@ -26,6 +28,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initializeMainPagerAdapter()
+
+        val channel = NotificationChannel(
+            "task-timer",
+            "Task Timer Channel",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
 
         TasksDatabase.buildInstance(applicationContext)
         MockDataLoader.loadMockData()
