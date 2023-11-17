@@ -15,6 +15,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
@@ -24,6 +26,7 @@ class TaskTimerService : Service() {
     private val tasks = mutableListOf<Task>()
     private var started: Boolean = false
     private var scope: CoroutineScope? = null
+    private val mutex = Mutex()
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val taskId = intent.getIntExtra("task_id", -1)
@@ -71,13 +74,23 @@ class TaskTimerService : Service() {
         val sb = StringBuilder()
 
         while (tasks.isNotEmpty()) {
-            for (task in tasks) {
-                val remainingMilliseconds = task.dueDate.time - Date().time
+            var taskThatRequiresDeletion: Task? = null
 
-                if (remainingMilliseconds <= 0) {
-                    tasks.remove(task)
-                } else {
-                    sb.appendLine(task.name + ": " + getRemainingTime(remainingMilliseconds))
+            mutex.withLock {
+                for (task in tasks) {
+                    val remainingMilliseconds = task.dueDate.time - Date().time
+
+                    if (remainingMilliseconds <= 0) {
+                        taskThatRequiresDeletion = task
+                    } else {
+                        sb.appendLine(task.name + ": " + getRemainingTime(remainingMilliseconds))
+                    }
+                }
+            }
+
+            if (taskThatRequiresDeletion != null) {
+                mutex.withLock {
+                    tasks.remove(taskThatRequiresDeletion)
                 }
             }
 
