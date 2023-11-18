@@ -1,8 +1,13 @@
 package hr.foi.rampu.memento
 
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
@@ -15,6 +20,7 @@ import hr.foi.rampu.memento.fragments.CompletedFragment
 import hr.foi.rampu.memento.fragments.NewsFragment
 import hr.foi.rampu.memento.fragments.PendingFragment
 import hr.foi.rampu.memento.helpers.MockDataLoader
+import hr.foi.rampu.memento.services.TaskDeletionService
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,19 +35,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initializeMainPagerAdapter()
 
-        val channel = NotificationChannel(
-            "task-timer",
-            "Task Timer Channel",
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-
         TasksDatabase.buildInstance(applicationContext)
         MockDataLoader.loadMockData()
 
         connectViewPagerWithTabLayout()
         connectNavDrawerWithViewPager()
+
+        prepareServices()
     }
 
     private fun connectViewPagerWithTabLayout() {
@@ -121,5 +121,33 @@ class MainActivity : AppCompatActivity() {
                     return@setOnMenuItemClickListener true
                 }
         }
+    }
+
+    private fun prepareServices() {
+        createTaskTimerNotificationChannel()
+        activateTaskDeletionService()
+    }
+
+    private fun createTaskTimerNotificationChannel() {
+        val channel = NotificationChannel(
+            "task-timer",
+            "Task Timer Channel",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun activateTaskDeletionService() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, TaskDeletionService::class.java)
+        val pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        alarmManager.setRepeating(
+            AlarmManager.ELAPSED_REALTIME,
+            SystemClock.elapsedRealtime() + 15 * 60 * 1000,
+            15 * 60 * 1000,
+            pendingIntent
+        )
     }
 }

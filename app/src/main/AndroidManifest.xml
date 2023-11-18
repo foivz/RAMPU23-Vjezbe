@@ -16,6 +16,10 @@
         android:theme="@style/Theme.Memento"
         tools:targetApi="31">
         <service
+            android:name=".services.TaskDeletionService"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
             android:name=".services.TaskTimerService"
             android:enabled="true"
             android:exported="true" />
