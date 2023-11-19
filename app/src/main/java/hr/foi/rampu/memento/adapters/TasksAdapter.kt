@@ -111,6 +111,16 @@ class TasksAdapter(
         notifyItemInserted(newIndexInList)
     }
 
+    fun removeTaskById(taskId: Int) {
+        val deletedIndex = tasksList.indexOfFirst { task ->
+            task.id == taskId
+        }
+        if (deletedIndex != -1) {
+            tasksList.removeAt(deletedIndex)
+            notifyItemRemoved(deletedIndex)
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val taskView = LayoutInflater
             .from(parent.context)

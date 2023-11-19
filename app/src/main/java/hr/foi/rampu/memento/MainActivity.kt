@@ -1,14 +1,10 @@
 package hr.foi.rampu.memento
 
-import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.os.SystemClock
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.navigation.NavigationView
@@ -20,7 +16,7 @@ import hr.foi.rampu.memento.fragments.CompletedFragment
 import hr.foi.rampu.memento.fragments.NewsFragment
 import hr.foi.rampu.memento.fragments.PendingFragment
 import hr.foi.rampu.memento.helpers.MockDataLoader
-import hr.foi.rampu.memento.services.TaskDeletionService
+import hr.foi.rampu.memento.helpers.TaskDeletionServiceHelper
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var navDrawerLayout: DrawerLayout
     lateinit var navView: NavigationView
     lateinit var mainPagerAdapter: MainPagerAdapter
+    private val taskDeletionServiceHelper by lazy { TaskDeletionServiceHelper(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,15 +136,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun activateTaskDeletionService() {
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, TaskDeletionService::class.java)
-        val pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        taskDeletionServiceHelper
+            .activateTaskDeletionService { deletedTaskId ->
+                supportFragmentManager.setFragmentResult(
+                    "task_deleted",
+                    bundleOf("task_id" to deletedTaskId)
+                )
+            }
+    }
 
-        alarmManager.setRepeating(
-            AlarmManager.ELAPSED_REALTIME,
-            SystemClock.elapsedRealtime() + 15 * 60 * 1000,
-            15 * 60 * 1000,
-            pendingIntent
-        )
+    override fun onDestroy() {
+        taskDeletionServiceHelper.deactivateTaskDeletionService()
+        super.onDestroy()
     }
 }
