@@ -10,8 +10,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.android.gms.wearable.DataClient
+import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.Wearable
 import hr.foi.rampu.memento.presentation.models.Task
 
@@ -23,12 +26,29 @@ val mockTasks = listOf(
     Task(0, "Task5", "Category5")
 )
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
+    private val dataClient by lazy { Wearable.getDataClient(this) }
+    private val tasks = mutableStateListOf<Task>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MementoApp(mockTasks)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dataClient.addListener(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        dataClient.addListener(this)
+    }
+
+    override fun onDataChanged(dataEvents: DataEventBuffer) {
+        TODO("Not yet implemented")
     }
 }
 
