@@ -18,6 +18,7 @@ import hr.foi.rampu.memento.fragments.NewsFragment
 import hr.foi.rampu.memento.fragments.PendingFragment
 import hr.foi.rampu.memento.helpers.MockDataLoader
 import hr.foi.rampu.memento.helpers.TaskDeletionServiceHelper
+import hr.foi.rampu.memento.sync.WearableSynchronizer
 
 class MainActivity : AppCompatActivity() {
 
@@ -109,9 +110,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fillNavDrawerWithFragments() {
+        navView.menu.setGroupDividerEnabled(true)
+
         mainPagerAdapter.fragmentItems.withIndex().forEach { (index, fragmentItem) ->
             navView.menu
-                .add(fragmentItem.titleRes)
+                .add(1, index, index, fragmentItem.titleRes)
                 .setIcon(fragmentItem.iconRes)
                 .setCheckable(true)
                 .setChecked((index == 0))
@@ -121,6 +124,20 @@ class MainActivity : AppCompatActivity() {
                     return@setOnMenuItemClickListener true
                 }
         }
+
+        navView.menu
+            .add(2, 0, mainPagerAdapter.fragmentItems.size, getString(R.string.sync_wear_os))
+            .setIcon(R.drawable.baseline_watch_24)
+            .setOnMenuItemClickListener {
+                WearableSynchronizer.sendTasks(
+                    TasksDatabase
+                        .getInstance()
+                        .getTasksDao()
+                        .getAllTasks(false),
+                    dataClient
+                )
+                return@setOnMenuItemClickListener true
+            }
     }
 
     private fun prepareServices() {
