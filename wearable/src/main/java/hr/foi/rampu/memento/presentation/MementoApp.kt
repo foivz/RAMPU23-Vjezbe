@@ -26,3 +26,17 @@ fun TaskCard(task: Task) {
         }
     }
 }
+
+private val previewTask = Task(0, "App preview", "Wear app")
+
+@Preview
+@Composable
+fun MementoAppPreview() {
+    MementoApp(tasks = listOf(previewTask, previewTask, previewTask))
+}
+
+@Preview
+@Composable
+fun TaskCardPreview() {
+    MementoApp(tasks = listOf(previewTask))
+}
