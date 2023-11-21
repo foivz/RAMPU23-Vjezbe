@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.gms.wearable.Wearable
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -26,6 +27,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var navView: NavigationView
     lateinit var mainPagerAdapter: MainPagerAdapter
     private val taskDeletionServiceHelper by lazy { TaskDeletionServiceHelper(applicationContext) }
+
+    private val dataClient by lazy { Wearable.getDataClient(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
