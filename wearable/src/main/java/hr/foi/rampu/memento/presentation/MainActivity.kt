@@ -10,11 +10,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.wearable.DataClient
+import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
+import com.google.android.gms.wearable.DataMap
+import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.Wearable
 import hr.foi.rampu.memento.presentation.models.Task
 
@@ -33,7 +39,7 @@ class MainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MementoApp(mockTasks)
+            MementoApp(tasks)
         }
     }
 
@@ -48,8 +54,27 @@ class MainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     }
 
     override fun onDataChanged(dataEvents: DataEventBuffer) {
-        TODO("Not yet implemented")
+        dataEvents.forEach { dataEvent ->
+            if (dataEvent.type == DataEvent.TYPE_CHANGED) {
+                DataMapItem.fromDataItem(dataEvent.dataItem).apply {
+                    val tasksCount = dataMap.getInt("tasks_count")
+
+                    for (itemIndex in 0 until tasksCount) {
+                        val receivedTask = getTaskFromDataMap(dataMap, itemIndex)
+                        tasks.add(receivedTask)
+                    }
+
+                    dataClient.deleteDataItems(uri)
+                }
+            }
+        }
     }
+
+    private fun getTaskFromDataMap(dataMap: DataMap, itemIndex: Int) = Task(
+        dataMap.getInt("task_id_$itemIndex"),
+        dataMap.getString("task_name_$itemIndex")!!,
+        dataMap.getString("task_category_name_$itemIndex")!!
+    )
 }
 
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
