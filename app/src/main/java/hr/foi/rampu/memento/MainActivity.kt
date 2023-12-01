@@ -11,6 +11,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.wearable.Wearable
 import com.google.android.material.navigation.NavigationView
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         connectNavDrawerWithViewPager()
 
         prepareServices()
+        applyUserSettings()
     }
 
     private fun connectViewPagerWithTabLayout() {
@@ -225,6 +227,14 @@ class MainActivity : AppCompatActivity() {
                     bundleOf("task_id" to deletedTaskId)
                 )
             }
+    }
+
+    private fun applyUserSettings() {
+        PreferenceManager.getDefaultSharedPreferences(this)?.let { pref ->
+            PreferencesActivity.switchDarkMode(
+                pref.getBoolean("preference_dark_mode", false)
+            )
+        }
     }
 
     override fun onDestroy() {
