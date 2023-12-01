@@ -3,6 +3,7 @@ package hr.foi.rampu.memento
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
@@ -166,6 +167,19 @@ class MainActivity : AppCompatActivity() {
             menuItem.isEnabled = false
             attachMenuItemToTasksCreatedCount(menuItem)
         }
+
+        newNavMenuIndex++
+
+        navView.menu
+            .add(3, newNavMenuIndex, newNavMenuIndex, getString(R.string.settings_menu_item))
+            .setIcon(R.drawable.baseline_settings_24)
+            .setOnMenuItemClickListener {
+                val intent = Intent(baseContext, PreferencesActivity::class.java)
+                startActivity(intent)
+                navDrawerLayout.closeDrawers()
+                return@setOnMenuItemClickListener true
+            }
+
     }
 
     private fun attachMenuItemToTasksCreatedCount(tasksCounterItem: MenuItem) {
