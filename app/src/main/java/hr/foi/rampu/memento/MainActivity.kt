@@ -3,7 +3,10 @@ package hr.foi.rampu.memento
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
@@ -23,14 +26,15 @@ import hr.foi.rampu.memento.sync.WearableSynchronizer
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var tabLayout: TabLayout
-    lateinit var viewPager2: ViewPager2
-    lateinit var navDrawerLayout: DrawerLayout
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager2: ViewPager2
+    private lateinit var navDrawerLayout: DrawerLayout
     lateinit var navView: NavigationView
-    lateinit var mainPagerAdapter: MainPagerAdapter
+    private lateinit var mainPagerAdapter: MainPagerAdapter
     private val taskDeletionServiceHelper by lazy { TaskDeletionServiceHelper(applicationContext) }
 
     private val dataClient by lazy { Wearable.getDataClient(this) }
+    private lateinit var onSharedPreferencesListener: OnSharedPreferenceChangeListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,21 +156,36 @@ class MainActivity : AppCompatActivity() {
 
         newNavMenuIndex++
 
-        navView.menu
-            .add(
+        navView.menu.apply {
+            val menuItem = add(
                 newNavMenuIndex,
                 newNavMenuIndex,
                 newNavMenuIndex,
-                "${getString(R.string.tasks_created)} ${getTasksCreatedCount()}"
+                ""
             )
-            .isEnabled = false
+            menuItem.isEnabled = false
+            attachMenuItemToTasksCreatedCount(menuItem)
+        }
     }
 
-    private fun getTasksCreatedCount(): Int {
-        val sharedPreferences = getSharedPreferences(
-            "tasks_preferences", Context.MODE_PRIVATE
-        )
-        return sharedPreferences.getInt("tasks_created_counter", 0)
+    private fun attachMenuItemToTasksCreatedCount(tasksCounterItem: MenuItem) {
+        val sharedPreferences = getSharedPreferences("tasks_preferences", Context.MODE_PRIVATE)
+        onSharedPreferencesListener =
+            OnSharedPreferenceChangeListener { _, key ->
+                if (key == "tasks_created_counter") {
+                    updateTasksCreatedCounter(tasksCounterItem, sharedPreferences)
+                }
+            }
+        sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferencesListener)
+        updateTasksCreatedCounter(tasksCounterItem, sharedPreferences)
+    }
+
+    private fun updateTasksCreatedCounter(
+        tasksCounterItem: MenuItem,
+        sharedPreferences: SharedPreferences
+    ) {
+        val tasksCreated = sharedPreferences.getInt("tasks_created_counter", 0)
+        tasksCounterItem.title = "${getString(R.string.tasks_created)} $tasksCreated"
     }
 
     private fun prepareServices() {
