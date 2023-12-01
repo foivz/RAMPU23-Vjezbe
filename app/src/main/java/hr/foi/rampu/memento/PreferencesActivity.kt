@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 
+const val RESULT_LANG_CHANGED = AppCompatActivity.RESULT_FIRST_USER
+
 class PreferencesActivity : AppCompatActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -29,6 +31,12 @@ class PreferencesActivity : AppCompatActivity(),
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             "preference_dark_mode" -> switchDarkMode(sharedPreferences?.getBoolean(key, false))
+            "preference_language" -> notifyLanguageChangedAndClose()
         }
+    }
+
+    private fun notifyLanguageChangedAndClose() {
+        setResult(RESULT_LANG_CHANGED)
+        finish()
     }
 }

@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
@@ -25,6 +26,7 @@ import hr.foi.rampu.memento.fragments.PendingFragment
 import hr.foi.rampu.memento.helpers.MockDataLoader
 import hr.foi.rampu.memento.helpers.TaskDeletionServiceHelper
 import hr.foi.rampu.memento.sync.WearableSynchronizer
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,8 +40,20 @@ class MainActivity : AppCompatActivity() {
     private val dataClient by lazy { Wearable.getDataClient(this) }
     private lateinit var onSharedPreferencesListener: OnSharedPreferenceChangeListener
 
+    private val settingsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_LANG_CHANGED) {
+                recreate()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!applyUserSettings()) {
+            return
+        }
+
         setContentView(R.layout.activity_main)
         initializeMainPagerAdapter()
 
@@ -50,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         connectNavDrawerWithViewPager()
 
         prepareServices()
-        applyUserSettings()
     }
 
     private fun connectViewPagerWithTabLayout() {
@@ -176,8 +189,7 @@ class MainActivity : AppCompatActivity() {
             .add(3, newNavMenuIndex, newNavMenuIndex, getString(R.string.settings_menu_item))
             .setIcon(R.drawable.baseline_settings_24)
             .setOnMenuItemClickListener {
-                val intent = Intent(baseContext, PreferencesActivity::class.java)
-                startActivity(intent)
+                settingsLauncher.launch(Intent(this, PreferencesActivity::class.java))
                 navDrawerLayout.closeDrawers()
                 return@setOnMenuItemClickListener true
             }
@@ -229,12 +241,24 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun applyUserSettings() {
+    private fun applyUserSettings(): Boolean {
         PreferenceManager.getDefaultSharedPreferences(this)?.let { pref ->
             PreferencesActivity.switchDarkMode(
                 pref.getBoolean("preference_dark_mode", false)
             )
+            val lang = pref.getString("preference_language", "EN")
+            if (lang != null) {
+                val locale = Locale(lang)
+                if (resources.configuration.locales[0].language != locale.language) {
+                    resources.configuration.setLocale(locale)
+                    Locale.setDefault(locale)
+                    createConfigurationContext(resources.configuration)
+                    recreate()
+                    return false
+                }
+            }
         }
+        return true
     }
 
     override fun onDestroy() {
