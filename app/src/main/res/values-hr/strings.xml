@@ -15,4 +15,7 @@
     <string name="task_has_timer">Zadatak ima odbrojavanje</string>
     <string name="sync_wear_os">Sinkroniziraj Wear OS</string>
     <string name="tasks_created">Stvoreno zadataka:</string>
+    <string name="preferences_force_dark_mode">Forsiraj tamni način rada</string>
+    <string name="preferences_application_language">Jezik aplikacije</string>
+    <string name="preferences_template_task_name">Predložak naziva zadatka</string>
 </resources>

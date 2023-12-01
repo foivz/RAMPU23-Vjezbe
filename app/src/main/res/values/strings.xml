@@ -15,4 +15,7 @@
     <string name="task_has_timer">Task has a timer</string>
     <string name="sync_wear_os">Sync Wear OS</string>
     <string name="tasks_created">Tasks created:</string>
+    <string name="preferences_force_dark_mode">Force dark mode</string>
+    <string name="preferences_application_language">Application language</string>
+    <string name="preferences_template_task_name">Template task name</string>
 </resources>
