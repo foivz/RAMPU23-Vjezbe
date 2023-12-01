@@ -18,4 +18,5 @@
     <string name="preferences_force_dark_mode">Force dark mode</string>
     <string name="preferences_application_language">Application language</string>
     <string name="preferences_template_task_name">Template task name</string>
+    <string name="preferences_default_task_name_summary">Set a default task name to be automatically entered when new task is being created.</string>
 </resources>
