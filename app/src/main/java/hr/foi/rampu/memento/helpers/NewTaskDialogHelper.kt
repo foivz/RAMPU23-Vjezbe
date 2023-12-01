@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
+import androidx.preference.PreferenceManager
 import hr.foi.rampu.memento.R
 import hr.foi.rampu.memento.entities.Task
 import hr.foi.rampu.memento.entities.TaskCategory
@@ -23,6 +24,16 @@ class NewTaskDialogHelper(private val view: View) {
     private val spinner = view.findViewById<Spinner>(R.id.spn_new_task_dialog_category)
     private val dateSelection = view.findViewById<EditText>(R.id.et_new_task_dialog_date)
     private val timeSelection = view.findViewById<EditText>(R.id.et_new_task_dialog_time)
+    private val name = view.findViewById<EditText>(R.id.et_new_task_dialog_name)
+
+    init {
+        setDefaultTaskName()
+    }
+
+    fun setDefaultTaskName() {
+        val settings = PreferenceManager.getDefaultSharedPreferences(view.context)
+        name.setText(settings.getString("preference_default_task_name", ""))
+    }
 
     fun populateSpinner(categories: List<TaskCategory>) {
         val spinnerAdapter = ArrayAdapter(
@@ -70,8 +81,7 @@ class NewTaskDialogHelper(private val view: View) {
     }
 
     fun buildTask(): Task {
-        val etName = view.findViewById<EditText>(R.id.et_new_task_dialog_name)
-        val newTaskName = etName.text.toString()
+        val newTaskName = name.text.toString()
         val spinnerCategory = view.findViewById<Spinner>(R.id.spn_new_task_dialog_category)
         val selectedCategory = spinnerCategory.selectedItem as TaskCategory
 
