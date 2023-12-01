@@ -2,6 +2,7 @@ package hr.foi.rampu.memento
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -112,9 +113,12 @@ class MainActivity : AppCompatActivity() {
     private fun fillNavDrawerWithFragments() {
         navView.menu.setGroupDividerEnabled(true)
 
+        var newNavMenuIndex = 0
+
         mainPagerAdapter.fragmentItems.withIndex().forEach { (index, fragmentItem) ->
+            newNavMenuIndex++
             navView.menu
-                .add(1, index, index, fragmentItem.titleRes)
+                .add(0, index, index, fragmentItem.titleRes)
                 .setIcon(fragmentItem.iconRes)
                 .setCheckable(true)
                 .setChecked((index == 0))
@@ -125,8 +129,15 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
+        newNavMenuIndex++
+
         navView.menu
-            .add(2, 0, mainPagerAdapter.fragmentItems.size, getString(R.string.sync_wear_os))
+            .add(
+                newNavMenuIndex,
+                0,
+                newNavMenuIndex,
+                getString(R.string.sync_wear_os)
+            )
             .setIcon(R.drawable.baseline_watch_24)
             .setOnMenuItemClickListener {
                 WearableSynchronizer.sendTasks(
@@ -138,6 +149,24 @@ class MainActivity : AppCompatActivity() {
                 )
                 return@setOnMenuItemClickListener true
             }
+
+        newNavMenuIndex++
+
+        navView.menu
+            .add(
+                newNavMenuIndex,
+                newNavMenuIndex,
+                newNavMenuIndex,
+                "${getString(R.string.tasks_created)} ${getTasksCreatedCount()}"
+            )
+            .isEnabled = false
+    }
+
+    private fun getTasksCreatedCount(): Int {
+        val sharedPreferences = getSharedPreferences(
+            "tasks_preferences", Context.MODE_PRIVATE
+        )
+        return sharedPreferences.getInt("tasks_created_counter", 0)
     }
 
     private fun prepareServices() {

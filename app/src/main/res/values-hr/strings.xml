@@ -14,4 +14,5 @@
     <string name="task_countdown">Odbrojavanje zadatka</string>
     <string name="task_has_timer">Zadatak ima odbrojavanje</string>
     <string name="sync_wear_os">Sinkroniziraj Wear OS</string>
+    <string name="tasks_created">Stvoreno zadataka:</string>
 </resources>

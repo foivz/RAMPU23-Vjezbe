@@ -14,4 +14,5 @@
     <string name="task_countdown">Task countdown</string>
     <string name="task_has_timer">Task has a timer</string>
     <string name="sync_wear_os">Sync Wear OS</string>
+    <string name="tasks_created">Tasks created:</string>
 </resources>
